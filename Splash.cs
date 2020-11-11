@@ -25,7 +25,7 @@ namespace DesktopHide
         private const String AppID = "DesktopHide";
         private const String HookNotif = "f52d225f-96ab-497f-ad18-77156edc40a5";
         private const String UnHookNotif = "0f0af202-6553-41e9-8b7a-8228410a8052";
-        private int count = 0;
+        private const String ByeNotif = "50s5f0a5-6969-4200-8500-6969re6969re";
 
         int HiddenDesktop;
         bool switched = false;
@@ -71,10 +71,7 @@ namespace DesktopHide
                     Application.Exit();
             }
             else
-            {
                 Console.WriteLine("[LOG] : Hasen't finished initializing...");
-                count++;
-            }
         }
         private bool WriteResourceToFile(string resourceName, string fileName)
         {
@@ -149,7 +146,10 @@ namespace DesktopHide
             var finished = false;
             MenuItem item = (MenuItem)Sender;
             if (item.Text == menuItemStrings[0])
+            {
+                SendNotification("bye");
                 Application.Exit();
+            }
             else if (item.Text == menuItemStrings[1] && !finished)
             {
                 item.Text = menuItemStrings[3];
@@ -173,7 +173,7 @@ namespace DesktopHide
         }
         void gkh_KeyDown(object sender, KeyEventArgs e)
         {
-            if (pressed != Keys.None)
+            if (pressed != Keys.None && pressed != e.KeyCode)
             {
 				RotateScreen();
 			}
@@ -185,6 +185,7 @@ namespace DesktopHide
         {
             pressed = Keys.None;
             e.Handled = true;
+            Thread.Sleep(500);
         }
         private void SendNotification(string type)
         {
@@ -192,6 +193,8 @@ namespace DesktopHide
                 toastNotificationsManager.ShowNotification(HookNotif);
             else if (type == "unhook")
                 toastNotificationsManager.ShowNotification(UnHookNotif);
+            else if(type == "bye")
+                toastNotificationsManager.ShowNotification(ByeNotif);
             else
                 MessageBox.Show("Error with Notifications!");
         }
