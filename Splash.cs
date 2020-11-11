@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Linq;
 using System.IO;
+using System.Diagnostics;
 
 // set attributes
 [assembly: AssemblyTitle("DesktopHide")]
@@ -26,6 +27,8 @@ namespace DesktopHide
         private const String HookNotif = "f52d225f-96ab-497f-ad18-77156edc40a5";
         private const String UnHookNotif = "0f0af202-6553-41e9-8b7a-8228410a8052";
         private const String ByeNotif = "50s5f0a5-6969-4200-8500-6969re6969re";
+        private const String BasicInstallFolder = @"C:\Program Files (x86)\DesktopHide";
+        private const String BasicAppFolder = BasicInstallFolder + @"\" + AppID + ".exe";
 
         int HiddenDesktop;
         bool switched = false;
@@ -42,11 +45,31 @@ namespace DesktopHide
         public Splash()
         {
             InitializeComponent();
-
         }
 
         private void Splash_Load(object sender, EventArgs e)
         {
+            //Automatically copy itself in a proper location and restart
+            if (!File.Exists(BasicAppFolder) || Application.StartupPath != BasicInstallFolder)
+            {
+                if (!Directory.Exists(BasicInstallFolder))
+                    Directory.CreateDirectory(BasicInstallFolder);
+                try
+                {
+                    if(!File.Exists(BasicAppFolder))
+                        File.Copy(Process.GetCurrentProcess().MainModule.FileName, BasicAppFolder);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = BasicAppFolder
+                    });
+                    Environment.Exit(0);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Error with the executable relocation, the program might not work as intended");
+                    throw;
+                }
+            }
             //Extract Icon For Shortcut for Notifications
             if (!File.Exists(iconPath))
             {
@@ -110,7 +133,8 @@ namespace DesktopHide
                     name: "DesktopHide",
                     iconPath: Application.StartupPath + @"\Images\icon.ico");
                 //restart the app
-                Application.Restart();
+                Process.Start(BasicAppFolder);
+                Environment.Exit(0);
             }
 
             trayIcon.ContextMenu = contextMenu;
@@ -176,16 +200,16 @@ namespace DesktopHide
             if (pressed != Keys.None && pressed != e.KeyCode)
             {
 				RotateScreen();
+                pressed = Keys.None;
 			}
             else
                 pressed = e.KeyCode;
-            e.Handled = true;
-        }
+            //e.Handled = true; //Would cancel the actual keypress
+        } 
         void gkh_KeyUp(object sender, KeyEventArgs e)
         {
             pressed = Keys.None;
-            e.Handled = true;
-            Thread.Sleep(500);
+            //e.Handled = true; //Would cancel the actual keypress
         }
         private void SendNotification(string type)
         {

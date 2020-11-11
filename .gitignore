@@ -64,3 +64,4 @@ obj/x64/Debug/DesktopHide.Splash.resources
 .vs/DesktopHide/v16/.suo
 obj/x64/Debug/DesignTimeResolveAssemblyReferences.cache
 obj/x64/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+bin/x64/Debug/Images/icon.ico
